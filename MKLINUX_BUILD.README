@@ -1,0 +1,108 @@
+
+			How To Build The LINUX Server
+			=============================
+
+
+	If there are errors or inaccuracies in this document, or if you
+	still can't build the sources, please refer to the web page
+	below for further information about what to do:
+
+		http://www.mklinux.apple.com
+
+	If you want to discuss MkLinux, there are some mailing lists
+	available, please see the above web page for information.
+	
+	The "comp.os.mach" newsgroup is dedicated to discussions on the
+	Mach microkernel and related projects.
+
+	We have set up a Frequently Asked Questions (FAQ) page on the
+	WWW site, listing the most common problems (and their solutions)
+	as soon as we get some reports.  Please check this page to see if
+	your problem has already been reported and if there's a solution.
+
+1. Add the Mach tools to your PATH
+
+	Some Mach tools are needed to build the Linux server. These tools
+	can be found in the DR3.tools.tgz archive.  Extract them
+	into /usr/src/.  The tools you'll need should now be in:
+	/usr/src/DR3/osfmk/tools/ppc/ppc_linux/hostbin/
+
+	Check that "mig" and "migcom" are correctly found in this directory.
+
+	You need to add this path to your PATH environment variable.
+	A good way to do that is to execute the commands in the
+	/usr/src/DR3/set_ode_path.sh script as part of your
+	~/.bashrc. Just add the following line to your "~/.bashrc" file
+	for example:
+
+		. /usr/src/DR3/set_ode_path.sh
+
+
+2. Building multiple configuration
+
+	We sometimes build multiple configuration of the server ("dev" with
+	CONFIG_OSFMACH3_DEBUG turned on and "prod" without).  You may want
+	to do this also.  If not, skip to step 3.
+
+	The easiest way to do this is to leave the original mklinux source
+	tree untouched (never build in there), but create some shadow trees
+	fully populated with symbolic links to the original source tree.
+	There is an ODE utility to do that (mklinks).
+
+	Then just repeat step 2. for each tree, selecting different
+	configuration options in each tree.
+
+
+3. Obtain the Microkernel header files and libraries.
+
+	You need to have the microkernel header files and libraries in
+	their proper place before you can build the linux server.  There
+	are two ways to do this.  You can obtain the Microkernel sources
+	and build them (see the OSFMK_BUILD.README file for instructions),
+	OR
+	you can simply get just the headers and libraries already built.
+	They are in the archive DR3.osfmk.export.tgz.  Extract that
+	archive into /usr/src, and you won't have to spend the time building
+	them.
+
+
+4. Build the Linux server using the usual method.
+
+	$ cd /usr/src/DR3/mklinux/src
+	$ make config
+
+	Answer the questions.  The default answers are the ones that
+	are built into the vmlinux binary in this update.  So, it is
+	reasonably safe to hit "return" through the entire session.
+	However, this is where you get to fine tune which features
+	(such as firewalling or IP forwarding) get compiled into your
+	linux server.
+
+	Continue building the server:
+
+	$ make dep
+	$ make clean
+	$ make
+
+	This should produce the linux server binary:
+
+		/usr/src/DR3/mklinux/src/vmlinux"
+
+
+	Note: If you had just built the Microkernel before the linux
+	server be sure to exit the shell that you were running.  The PATH
+	that you had when you built the Microkernel will _not_ work
+	when you want to build the linux server.  Just type "exit" at
+	the shell prompt which will leave the shell that was started
+	when you entered the "workon" command.
+
+
+5. Install the server
+
+	# cp vmlinux /mach_servers/
+
+	Don't forget to update /mach_servers/bootstrap.conf
+	to tell which "startup" binary you want to boot if you don't use
+	the default names. 
+
+	That's all!
